@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ask a Local · Seoul</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside id="panel">
+    <header>
+      <h1>Ask a Local <span>Seoul</span></h1>
+      <p class="sub">Tips from people who actually live here.</p>
+    </header>
+
+    <div class="search">
+      <input id="areaInput" type="search" placeholder="Where are you? e.g. Yeoksam, 역삼동" autocomplete="off" aria-label="Neighborhood">
+      <button id="nearMe" type="button" title="Use my location">📍 Near me</button>
+      <ul id="areaList" hidden></ul>
+    </div>
+
+    <div id="chips" class="chips" role="group" aria-label="Categories"></div>
+
+    <div class="meta">
+      <span id="summary"></span>
+      <label>within
+        <select id="radius">
+          <option value="500">500 m</option>
+          <option value="1000" selected>1 km</option>
+          <option value="2000">2 km</option>
+        </select>
+      </label>
+    </div>
+
+    <ul id="results"></ul>
+
+    <footer>
+      <button id="addBtn" type="button" class="primary">＋ Add a tip</button>
+      <button id="exportBtn" type="button" hidden>Export my tips</button>
+    </footer>
+  </aside>
+
+  <main>
+    <div id="map"></div>
+    <div id="banner" hidden>Tap the map where the place is. <button id="cancelAdd" type="button">Cancel</button></div>
+  </main>
+
+  <dialog id="addDialog">
+    <form id="addForm" method="dialog">
+      <h2>Add a tip</h2>
+      <label>Name (English) <input name="name" required maxlength="60"></label>
+      <label>Name in Korean <small>shown to taxi drivers / staff</small> <input name="ko" maxlength="60"></label>
+      <label>Category <select name="cat" id="catSelect"></select></label>
+      <label>Your tip <textarea name="tip" rows="3" required maxlength="300" placeholder="What should a visitor know?"></textarea></label>
+      <label>Tags <small>comma separated</small> <input name="tags" placeholder="English menu, Foreign cards OK"></label>
+      <label>Your name <input name="by" maxlength="30"></label>
+      <div class="actions">
+        <button type="button" id="addCancel">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
