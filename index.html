@@ -37,33 +37,79 @@
 
     <footer>
       <button id="addBtn" type="button" class="primary">＋ Add a tip</button>
-      <button id="exportBtn" type="button" hidden>Export my tips</button>
     </footer>
   </aside>
 
   <main>
     <div id="map"></div>
-    <div id="banner" hidden>Tap the map where the place is. <button id="cancelAdd" type="button">Cancel</button></div>
   </main>
 
-  <dialog id="addDialog">
-    <form id="addForm" method="dialog">
-      <h2>Add a tip</h2>
-      <label>Name (English) <input name="name" required maxlength="60"></label>
-      <label>Name in Korean <small>shown to taxi drivers / staff</small> <input name="ko" maxlength="60"></label>
-      <label>Category <select name="cat" id="catSelect"></select></label>
-      <label>Your tip <textarea name="tip" rows="3" required maxlength="300" placeholder="What should a visitor know?"></textarea></label>
-      <label>Tags <small>comma separated</small> <input name="tags" placeholder="English menu, Foreign cards OK"></label>
-      <label>Your name <input name="by" maxlength="30"></label>
-      <div class="actions">
-        <button type="button" id="addCancel">Cancel</button>
-        <button type="submit" class="primary">Save</button>
+  <dialog id="addDialog" aria-labelledby="addTitle">
+    <div class="dlg">
+      <header>
+        <h2 id="addTitle">Add a tip</h2>
+        <button id="addClose" type="button" class="x" aria-label="Close">✕</button>
+      </header>
+
+      <div class="scroll">
+        <form id="tipForm" class="form" novalidate>
+          <fieldset>
+            <legend>1. Where is it? <small>위치</small></legend>
+            <div class="row">
+              <input id="addrInput" type="search" placeholder="Address or place name · 주소나 장소 이름" autocomplete="off" aria-label="Address or place name">
+              <button id="addrFind" type="button">Find</button>
+              <button id="addNearMe" type="button" title="Use my location" aria-label="Use my location">📍</button>
+            </div>
+            <ul id="addrResults" hidden></ul>
+            <div id="addMap"></div>
+            <p id="locStatus" class="status"></p>
+          </fieldset>
+
+          <fieldset>
+            <legend>2. What is it? <small>가게 정보</small></legend>
+            <label>Name in Korean <small>한글 상호 · shown to taxi drivers and staff</small>
+              <input name="ko" maxlength="60" placeholder="돼지국밥집"></label>
+            <label>Name in English <small>영문 이름</small>
+              <input name="name" required maxlength="60" placeholder="Pork soup & rice"></label>
+            <div class="label">Category <small>카테고리</small></div>
+            <div id="catPick" class="chips pick" role="radiogroup" aria-label="Category"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>3. Your tip <small>팁</small></legend>
+            <label>What should a visitor know? <small>in English · 영어로</small>
+              <textarea name="tip" rows="3" required maxlength="300" placeholder="Order at the kiosk by the door — it has an English button."></textarea></label>
+            <div class="count"><span id="tipCount">0</span>/300</div>
+            <div class="label">Good to know <small>해당하는 것 선택</small></div>
+            <div id="tagPick" class="chips pick" role="group" aria-label="Tags"></div>
+            <label>Other tags <small>comma separated · 쉼표로 구분</small>
+              <input name="tags" placeholder="Late night, Picture menu"></label>
+            <label>Your name <small>제보자 이름</small>
+              <input name="by" maxlength="30"></label>
+          </fieldset>
+
+          <p id="formError" class="error" role="alert" hidden></p>
+        </form>
+
+        <section id="mine" hidden>
+          <h3>My tips <small id="mineCount"></small></h3>
+          <ul id="mineList"></ul>
+          <button id="exportBtn" type="button">Export my tips (JSON)</button>
+          <p class="status">Tips are saved in this browser only. Export and send the file to get them into the shared map.<br>이 브라우저에만 저장됩니다. 내보낸 파일을 보내주면 공유 지도에 반영됩니다.</p>
+        </section>
       </div>
-    </form>
+
+      <footer>
+        <button id="resetBtn" type="button">Clear</button>
+        <button id="saveBtn" type="submit" form="tipForm" class="primary">Save tip</button>
+      </footer>
+    </div>
   </dialog>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data.js"></script>
+  <script src="baeknyeon.js"></script>
   <script src="app.js"></script>
+  <script src="add.js"></script>
 </body>
 </html>

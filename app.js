@@ -19,8 +19,6 @@
     cats: new Set(), // empty = all
     applePay: false, // true면 "Apple Pay" 태그가 있는 곳만
     mine: loadMine(),
-    adding: false,
-    pendingLatLng: null,
     selected: null,
   };
 
@@ -54,7 +52,7 @@
   const walkMin = m => Math.max(1, Math.round(m / 75)); // ~4.5 km/h
 
   function nearby() {
-    return [...window.SEED_PLACES, ...state.mine]
+    return [...window.SEED_PLACES, ...(window.BAEKNYEON_PLACES || []), ...state.mine]
       .map(p => ({ ...p, d: meters(state.center, p) }))
       .filter(p => p.d <= state.radius && (state.cats.size === 0 || state.cats.has(p.cat)))
       .filter(p => !state.applePay || (p.tags || []).some(t => /apple\s*pay/i.test(t)))
@@ -67,6 +65,7 @@
     const dest = encodeURIComponent((p.ko || p.name).replace(/,/g, " "));
     return `<div class="nm">${esc(p.name)}</div>
       ${p.ko ? `<div class="ko">${esc(p.ko)}</div>` : ""}
+      ${p.addr ? `<div class="by">${esc(p.addr)}</div>` : ""}
       <p class="tip">${esc(p.tip)}</p>${tagsHtml(p)}
       ${p.by ? `<div class="by">Tip from ${esc(p.by)}</div>` : ""}
       <a href="https://map.kakao.com/link/to/${dest},${p.lat},${p.lng}" target="_blank" rel="noopener">Directions (KakaoMap) ↗</a>`;
@@ -101,7 +100,6 @@
         }).join("")
       : `<li class="empty">No local tips match here yet.<br>Know a good spot? Tap <b>＋ Add a tip</b>.</li>`;
 
-    $("exportBtn").hidden = state.mine.length === 0;
   }
 
   function select(id, openPopup = true) {
@@ -197,53 +195,21 @@
   });
 
   // ---------- add a tip ----------
-  const dialog = $("addDialog"), form = $("addForm");
-  $("catSelect").innerHTML = CATS.map(c => `<option value="${c.id}">${c.emoji} ${c.label}</option>`).join("");
+  // 팁 추가는 팝업(add.js)에서 한다. 지금 보고 있는 위치에서 시작하게 넘겨준다.
+  $("addBtn").addEventListener("click", () => window.AddTip.open(map.getCenter()));
 
-  function setAdding(on) {
-    state.adding = on;
-    document.body.classList.toggle("adding", on);
-    $("banner").hidden = !on;
-  }
-  $("addBtn").addEventListener("click", () => setAdding(true));
-  $("cancelAdd").addEventListener("click", () => setAdding(false));
-  $("addCancel").addEventListener("click", () => dialog.close());
-
-  map.on("click", e => {
-    if (!state.adding) return;
-    state.pendingLatLng = e.latlng;
-    setAdding(false);
-    form.reset();
-    dialog.showModal();
-  });
-
-  form.addEventListener("submit", () => {
-    const f = new FormData(form), ll = state.pendingLatLng;
-    const p = {
-      id: "u" + Date.now().toString(36),
-      name: f.get("name").trim(), ko: f.get("ko").trim(), cat: f.get("cat"),
-      lat: +ll.lat.toFixed(6), lng: +ll.lng.toFixed(6),
-      tip: f.get("tip").trim(),
-      tags: f.get("tags").split(",").map(s => s.trim()).filter(Boolean),
-      by: f.get("by").trim(),
-    };
-    state.mine.push(p);
-    saveMine();
-    // 새 팁이 현재 반경 밖이면 그 위치로 옮겨서 바로 보이게 한다
-    if (meters(state.center, p) > state.radius) state.center = { lat: p.lat, lng: p.lng, label: "your new tip" };
+  // 팝업에서 저장/삭제하면 다시 읽어 그린다. 새로 저장한 팁은 바로 선택해서 보여준다.
+  window.addEventListener("tips-changed", e => {
+    state.mine = loadMine();
+    const p = state.mine.find(x => x.id === e.detail.id);
+    if (!p) return render();
+    if (meters(state.center, p) > state.radius) state.center = { lat: p.lat, lng: p.lng, label: "your tip" };
     state.cats.clear();
     state.applePay = false;
     catChips().forEach(x => x.setAttribute("aria-pressed", !x.dataset.cat));
     $("chips").querySelector("[data-pay]").setAttribute("aria-pressed", false);
     render();
     select(p.id);
-  });
-
-  $("exportBtn").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(state.mine, null, 2)], { type: "application/json" });
-    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "my-tips.json" });
-    a.click();
-    URL.revokeObjectURL(a.href);
   });
 
   // ---------- go ----------

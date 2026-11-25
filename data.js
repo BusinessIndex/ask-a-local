@@ -18,6 +18,8 @@ window.CATEGORIES = [
   { id: "store", label: "Convenience store", emoji: "🏪", color: "#2f9e44" },
   { id: "bank", label: "Bank / ATM", emoji: "🏧", color: "#1971c2" },
   { id: "pharmacy", label: "Pharmacy", emoji: "💊", color: "#c2255c" },
+  // 백년가게: 정부 지정 30년 이상 가게. 음식점 외 업종도 섞여 있어 별도 카테고리로 둔다. 데이터는 baeknyeon.js
+  { id: "heritage", label: "100-Year Shop", emoji: "🏅", color: "#7048e8" },
 ];
 
 // ⚠️ 아래는 화면 확인용 "샘플" 데이터다. 실제 가게가 아니며 좌표도 임의로 찍었다.
